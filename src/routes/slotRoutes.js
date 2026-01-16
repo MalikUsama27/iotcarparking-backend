@@ -1,12 +1,14 @@
 const express = require("express");
 const Slot = require("../models/Slot");
 const replayProtection = require("../middleware/replayProtection");
+const connectDB = require("../config/db");
+require("dotenv").config();
 
 const router = express.Router();
 
 router.post("/slot-update", replayProtection, async (req, res) => {
   
-  await connectDB();
+  await connectDB(process.env.MONGO_URI);
   const { slotId, status, timestamp, nonce } = req.body;
 
   const slot = await Slot.findOneAndUpdate(
@@ -19,7 +21,7 @@ router.post("/slot-update", replayProtection, async (req, res) => {
 });
 
 router.get("/slots", async (req, res) => {
-  await connectDB();
+  await connectDB(process.env.MONGO_URI);
   const slots = await Slot.find();
   res.json(slots);
 });
