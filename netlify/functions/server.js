@@ -14,6 +14,10 @@ async function ensureConnection() {
     return;
   }
   
+  // Debug: Log available env vars (without sensitive data)
+  console.log("Environment check - MONGO_URI present:", !!process.env.MONGO_URI);
+  console.log("Environment check - Available env vars:", Object.keys(process.env).filter(k => k.includes("MONGO") || k.includes("NETLIFY")));
+  
   if (!process.env.MONGO_URI) {
     throw new Error("MONGO_URI environment variable is not set. Please configure it in Netlify dashboard: Site settings > Environment variables");
   }
