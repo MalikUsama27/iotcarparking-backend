@@ -5,6 +5,8 @@ const replayProtection = require("../middleware/replayProtection");
 const router = express.Router();
 
 router.post("/slot-update", replayProtection, async (req, res) => {
+  
+  await connectDB();
   const { slotId, status, timestamp, nonce } = req.body;
 
   const slot = await Slot.findOneAndUpdate(
@@ -17,6 +19,7 @@ router.post("/slot-update", replayProtection, async (req, res) => {
 });
 
 router.get("/slots", async (req, res) => {
+  await connectDB();
   const slots = await Slot.find();
   res.json(slots);
 });
