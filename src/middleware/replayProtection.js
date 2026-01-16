@@ -9,8 +9,22 @@ module.exports = async function replayProtection(req, res, next) {
     const { timestamp, nonce } = req.body;
     const now = Date.now();
 
-    if (Math.abs(now - timestamp) > ALLOWED_CLOCK_SKEW_MS) {
-      return res.status(409).json({ error: "Timestamp invalid" });
+    // Validate timestamp exists
+    if (!timestamp) {
+      return res.status(400).json({ 
+        error: "Timestamp required",
+        message: "Please include 'timestamp' in the request body (current time in milliseconds)"
+      });
+    }
+
+    // Validate timestamp is within allowed clock skew (default: 2 minutes)
+    const timeDiff = Math.abs(now - timestamp);
+    if (timeDiff > ALLOWED_CLOCK_SKEW_MS) {
+      const allowedMinutes = ALLOWED_CLOCK_SKEW_MS / 60000;
+      return res.status(409).json({ 
+        error: "Timestamp invalid",
+        message: `Timestamp must be within ${allowedMinutes} minutes of server time. Current server time: ${now}, Your timestamp: ${timestamp}, Difference: ${Math.round(timeDiff / 1000)} seconds`
+      });
     }
 
     const expiresAt = new Date(now + NONCE_TTL_MS);
