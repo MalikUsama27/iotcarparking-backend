@@ -25,10 +25,11 @@ async function connectDB(uri) {
     return connection;
   } catch (err) {
     console.error("MongoDB error:", err.message);
-    // Don't exit in serverless environments
-    if (process.env.NETLIFY) {
+    // Don't exit in serverless environments (Netlify, AWS Lambda, Vercel, etc.)
+    if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL) {
       throw err;
     }
+    // Only exit in traditional Node.js environments
     process.exit(1);
   }
 }
