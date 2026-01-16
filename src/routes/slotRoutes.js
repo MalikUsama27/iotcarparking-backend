@@ -14,7 +14,7 @@ router.post("/slot-update", replayProtection, async (req, res) => {
   );
 
   res.json({ ok: true, slot });
-});
+}); 
 
 router.get("/slots", async (req, res) => {
   const slots = await Slot.find();
