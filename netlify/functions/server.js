@@ -15,7 +15,7 @@ async function ensureConnection() {
   }
   
   if (!process.env.MONGO_URI) {
-    throw new Error("MONGO_URI environment variable is not set");
+    throw new Error("MONGO_URI environment variable is not set. Please configure it in Netlify dashboard: Site settings > Environment variables");
   }
   
   if (!isConnected) {
@@ -45,11 +45,15 @@ module.exports.handler = async (event, context) => {
     await ensureConnection();
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
+    const isConfigError = error.message.includes("MONGO_URI environment variable is not set");
     return {
-      statusCode: 503,
+      statusCode: isConfigError ? 500 : 503,
       body: JSON.stringify({ 
-        error: "Database connection failed",
-        message: error.message 
+        error: isConfigError ? "Configuration error" : "Database connection failed",
+        message: error.message,
+        ...(isConfigError && {
+          instructions: "Set MONGO_URI in Netlify: Site settings > Environment variables > Add variable"
+        })
       }),
       headers: {
         'Content-Type': 'application/json'
